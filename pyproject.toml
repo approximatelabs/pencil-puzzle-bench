@@ -1,0 +1,72 @@
+[project]
+name = "ppbench"
+version = "0.1.0"
+description = "A benchmark for LLM reasoning with verifiable logic puzzles"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Justin Waugh", email = "justin@approximatelabs.com" }
+]
+requires-python = ">=3.10"
+keywords = ["benchmark", "llm", "reasoning", "puzzles", "reinforcement-learning"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "javascript",   # Node.js bridge for pzpr.js
+    "gymnasium",    # RL environment
+    "pydantic-ai",  # LLM agent framework
+]
+
+[project.optional-dependencies]
+# LLM provider clients (install the ones you need)
+anthropic = ["anthropic"]
+openai = ["openai"]
+all = ["anthropic", "openai"]
+
+[project.urls]
+Homepage = "https://github.com/approximatelabs/pencil-puzzle-bench"
+Documentation = "https://github.com/approximatelabs/pencil-puzzle-bench#readme"
+Repository = "https://github.com/approximatelabs/pencil-puzzle-bench"
+Issues = "https://github.com/approximatelabs/pencil-puzzle-bench/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ppbench"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/ppbench",
+    "/LICENSE",
+    "/README.md",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "ruff",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]  # Line too long - handled by formatter
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

@@ -1,0 +1,38 @@
+# Lightweight smoke test: does ppbench install and work from scratch?
+#
+# Usage:
+#   docker build -f Dockerfile.test -t ppbench-test .
+#   docker run --rm ppbench-test
+#
+# This verifies:
+#   1. Node.js + Python are available
+#   2. ppbench installs cleanly via uv
+#   3. Puzzles load and the pzpr.js engine works
+#   4. Tests pass
+
+FROM python:3.12-slim
+
+# Install Node.js (required for pzpr.js bridge)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nodejs npm curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
+
+WORKDIR /app
+COPY . .
+
+# Install all deps
+RUN uv sync --all-extras
+
+# Run tests + a quick smoke test
+CMD uv run pytest -q && \
+    uv run python -c "\
+from ppbench import Puzzle, load_dataset; \
+records = load_dataset('golden_30'); \
+print(f'Loaded {len(records)} puzzles'); \
+p = Puzzle.from_url(records[0]['puzzlink_url']); \
+print(f'Puzzle: {p.pid}, complete={p.isComplete()}'); \
+print('Smoke test passed.')"
